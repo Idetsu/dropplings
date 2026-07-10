@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "dropplings",
+	"version": "${version}",
+	"name": "dropplings",
+	"description": "Adds adorable animated slime-like creatures called Dropplings.",
+	"authors": [
+		"Idetsu13"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/dropplings/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"droppling.jhrdev.Dropplings"
+		],
+		"client": [
+			"droppling.jhrdev.client.DropplingsClient"
+		]
+	},
+	"mixins": [
+		"dropplings.mixins.json",
+		{
+			"config": "dropplings.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}

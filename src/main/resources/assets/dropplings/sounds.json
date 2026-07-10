@@ -1,0 +1,8 @@
+{
+  "entity.droppling.plop": {
+    "sounds": [
+      "dropplings:entity/droppling/plop1",
+      "dropplings:entity/droppling/plop2"
+    ]
+  }
+}

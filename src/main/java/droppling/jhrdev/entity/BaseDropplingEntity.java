@@ -1,6 +1,8 @@
 package droppling.jhrdev.entity;
 
 import droppling.jhrdev.inventory.DropplingInventory;
+import droppling.jhrdev.sensor.DropplingItemEvaluator;
+import droppling.jhrdev.sensor.DropplingSensor;
 import droppling.jhrdev.species.SoundProfile;
 import droppling.jhrdev.species.SpeciesData;
 import net.minecraft.entity.EntityType;
@@ -21,12 +23,15 @@ public abstract class BaseDropplingEntity extends PathAwareEntity implements Geo
 
     protected final SpeciesData speciesData;
     private final DropplingInventory inventory = new DropplingInventory(DEFAULT_INVENTORY_CAPACITY);
+    private final DropplingSensor sensor = new DropplingSensor();
+    private final DropplingItemEvaluator itemEvaluator;
     private final AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
     private int stepSoundCooldown = STEP_SOUND_INTERVAL_TICKS;
 
     protected BaseDropplingEntity(EntityType<? extends PathAwareEntity> entityType, World world, SpeciesData speciesData) {
         super(entityType, world);
         this.speciesData = speciesData;
+        this.itemEvaluator = new DropplingItemEvaluator(speciesData.preferences());
         this.setPathfindingPenalty(PathNodeType.WATER, -1.0F);
     }
 
@@ -46,6 +51,14 @@ public abstract class BaseDropplingEntity extends PathAwareEntity implements Geo
 
     public DropplingInventory getInventory() {
         return this.inventory;
+    }
+
+    public DropplingSensor getSensor() {
+        return this.sensor;
+    }
+
+    public DropplingItemEvaluator getItemEvaluator() {
+        return this.itemEvaluator;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package droppling.jhrdev.entity;
 
+import droppling.jhrdev.behavior.CollectItemGoal;
 import droppling.jhrdev.registry.ModSpecies;
 import droppling.jhrdev.registry.ModItems;
 
@@ -39,16 +40,19 @@ public class DropplingEntity extends BaseDropplingEntity {
 
         // ===== EXPLORACIÓN =====
 
+        // Busca y se acerca a objetos preferidos.
+        this.goalSelector.add(2, new CollectItemGoal(this));
+
         // Camina explorando el mundo.
-        this.goalSelector.add(2, new WanderAroundFarGoal(this, 0.8));
+        this.goalSelector.add(3, new WanderAroundFarGoal(this, 0.8));
 
 
         // Observa jugadores cercanos.
-        this.goalSelector.add(3, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
+        this.goalSelector.add(4, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
 
 
         // Mira alrededor cuando está tranquilo.
-        this.goalSelector.add(4, new LookAroundGoal(this));
+        this.goalSelector.add(5, new LookAroundGoal(this));
 
 
         // ===== DEFENSA =====

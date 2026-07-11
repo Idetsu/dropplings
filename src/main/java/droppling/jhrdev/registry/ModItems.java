@@ -4,7 +4,6 @@ import droppling.jhrdev.Dropplings;
 
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.Item;
-import net.minecraft.item.Items;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -17,8 +16,8 @@ public class ModItems {
                     Dropplings.id("droppling_spawn_egg"),
                     new SpawnEggItem(
                             ModEntities.DROPPLING,
-                            0x7CCB5A, // color principal
-                            0xA6E57A, // manchas
+                            ModSpecies.DROPPLING.eggColors().primary(),
+                            ModSpecies.DROPPLING.eggColors().secondary(),
                             new Item.Settings()
                     )
             );

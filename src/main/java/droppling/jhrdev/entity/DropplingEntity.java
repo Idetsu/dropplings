@@ -1,7 +1,7 @@
 package droppling.jhrdev.entity;
 
+import droppling.jhrdev.registry.ModSpecies;
 import droppling.jhrdev.registry.ModItems;
-import droppling.jhrdev.registry.ModSounds;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.LookAroundGoal;
@@ -9,47 +9,22 @@ import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.RevengeGoal;
 import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
-import net.minecraft.entity.ai.pathing.PathNodeType;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 
-public class DropplingEntity extends PathAwareEntity implements GeoEntity {
-
-    private static final int PLOP_SOUND_INTERVAL_TICKS = 19;
-
-    private final AnimatableInstanceCache cache =
-            new SingletonAnimatableInstanceCache(this);
-
-    private int plopSoundCooldown = PLOP_SOUND_INTERVAL_TICKS;
-
+public class DropplingEntity extends BaseDropplingEntity {
 
     public DropplingEntity(EntityType<? extends PathAwareEntity> entityType, World world) {
-        super(entityType, world);
-
-        this.setPathfindingPenalty(PathNodeType.WATER, -1.0F);
-    }
-
-
-    public static DefaultAttributeContainer.Builder createDropplingAttributes() {
-
-        return MobEntity.createMobAttributes()
-                .add(EntityAttributes.GENERIC_MAX_HEALTH, 10.0D)
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25D)
-                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 2.0D);
+        super(entityType, world, ModSpecies.DROPPLING);
     }
 
 
@@ -83,25 +58,6 @@ public class DropplingEntity extends PathAwareEntity implements GeoEntity {
     }
 
     @Override
-    public void tick() {
-        super.tick();
-
-        if (this.getWorld().isClient || !this.isAlive()) {
-            return;
-        }
-
-        if (--this.plopSoundCooldown <= 0) {
-            this.playSound(
-                    ModSounds.DROPPLING_PLOP,
-                    0.4F,
-                    1.0F + (this.random.nextFloat() - 0.5F) * 0.2F
-            );
-
-            this.plopSoundCooldown = PLOP_SOUND_INTERVAL_TICKS;
-        }
-    }
-
-    @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 
         AnimationController<DropplingEntity> controller = new AnimationController<>(
@@ -109,9 +65,11 @@ public class DropplingEntity extends PathAwareEntity implements GeoEntity {
                 "controller",
                 0,
                 state -> {
-                    return state.setAndContinue(
+                    state.setAndContinue(
                             RawAnimation.begin().thenLoop(state.isMoving() ? "walk" : "idle")
                     );
+
+                    return PlayState.CONTINUE;
                 }
         );
 
@@ -127,12 +85,5 @@ public class DropplingEntity extends PathAwareEntity implements GeoEntity {
         this.dropStack(
                 new ItemStack(ModItems.DROPPLING_ESSENCE)
         );
-    }
-
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-
-        return cache;
     }
 }

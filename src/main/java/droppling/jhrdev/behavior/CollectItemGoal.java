@@ -7,7 +7,6 @@ import droppling.jhrdev.sensor.DropplingItemEvaluator;
 import droppling.jhrdev.sensor.DropplingSensor;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.pathing.Path;
 
 public class CollectItemGoal extends Goal {
 
@@ -15,16 +14,16 @@ public class CollectItemGoal extends Goal {
     private static final double MOVE_SPEED = 1.0D;
 
     private final BaseDropplingEntity droppling;
-    private final DropplingSensor sensor;
-    private final DropplingItemEvaluator evaluator;
+    private DropplingSensor sensor;
+    private DropplingItemEvaluator evaluator;
 
     private ItemEntity targetItem;
     private int scanCooldown;
 
     public CollectItemGoal(BaseDropplingEntity droppling) {
         this.droppling = droppling;
-        this.sensor = droppling.getSensor();
-        this.evaluator = droppling.getItemEvaluator();
+        this.sensor = null; // lazy-resolved to avoid init ordering NPE
+        this.evaluator = null; // lazy-resolved to avoid init ordering NPE
     }
 
     @Override
@@ -80,7 +79,18 @@ public class CollectItemGoal extends Goal {
 
         this.scanCooldown = SCAN_INTERVAL_TICKS;
 
-        List<ItemEntity> detectedItems = this.sensor.scan(this.droppling);
-        return this.evaluator.evaluate(detectedItems);
+        DropplingSensor sensor = this.sensor == null ? this.droppling.getSensor() : this.sensor;
+        DropplingItemEvaluator evaluator = this.evaluator == null ? this.droppling.getItemEvaluator() : this.evaluator;
+
+        if (sensor == null || evaluator == null) {
+            return null;
+        }
+
+        // cache resolved instances for future ticks
+        this.sensor = sensor;
+        this.evaluator = evaluator;
+
+        List<ItemEntity> detectedItems = sensor.scan(this.droppling);
+        return evaluator.evaluate(detectedItems);
     }
 }

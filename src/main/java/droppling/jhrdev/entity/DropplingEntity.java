@@ -1,9 +1,8 @@
 package droppling.jhrdev.entity;
 
 import droppling.jhrdev.behavior.CollectItemGoal;
-import droppling.jhrdev.registry.ModSpecies;
 import droppling.jhrdev.registry.ModItems;
-
+import droppling.jhrdev.registry.ModSpecies;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.LookAroundGoal;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
@@ -15,7 +14,6 @@ import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;

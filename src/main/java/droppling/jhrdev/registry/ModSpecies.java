@@ -48,11 +48,14 @@ public final class ModSpecies {
             ),
             new SpeciesPreferences(
                     new PreferenceSet(Map.of(
-                            Registries.ITEM.getId(Items.APPLE), 80.0D,
-                            Registries.ITEM.getId(Items.SWEET_BERRIES), 65.0D,
-                            Registries.ITEM.getId(Items.DIAMOND), 100.0D
+                            Registries.ITEM.getId(Items.DIAMOND), 8.0D,
+                            Registries.ITEM.getId(Items.EMERALD), 7.0D,
+                            Registries.ITEM.getId(Items.SLIME_BALL), 5.0D,
+                            Registries.ITEM.getId(Items.IRON_INGOT), 4.0D,
+                            Registries.ITEM.getId(Items.GOLD_INGOT), 5.0D
                     )),
-                    new PreferenceSet(Map.of())
+                    new PreferenceSet(Map.of()),
+                    1.0D
             ),
             new SoundProfile(
                     Optional.empty(),

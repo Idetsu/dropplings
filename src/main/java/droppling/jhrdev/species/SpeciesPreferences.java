@@ -6,10 +6,13 @@ import net.minecraft.util.Identifier;
 
 public record SpeciesPreferences(
         PreferenceSet basePreferences,
-        PreferenceSet randomPreferences
+        PreferenceSet randomPreferences,
+        double defaultValue
 ) {
     public double getPreference(Identifier itemId) {
-        return this.basePreferences.getPreference(itemId) + this.randomPreferences.getPreference(itemId);
+        double base = this.basePreferences.values().getOrDefault(itemId, this.defaultValue);
+        double random = this.randomPreferences.getPreference(itemId);
+        return base + random;
     }
 
     public double getPreference(Item item) {

@@ -14,6 +14,8 @@ import droppling.jhrdev.species.SpeciesData;
 import droppling.jhrdev.species.SpeciesIdentity;
 import droppling.jhrdev.species.SpeciesPreferences;
 import droppling.jhrdev.species.SpawnSettings;
+import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
 
 public final class ModSpecies {
 
@@ -45,7 +47,11 @@ public final class ModSpecies {
                     1.0F
             ),
             new SpeciesPreferences(
-                    new PreferenceSet(Map.of()),
+                    new PreferenceSet(Map.of(
+                            Registries.ITEM.getId(Items.APPLE), 80.0D,
+                            Registries.ITEM.getId(Items.SWEET_BERRIES), 65.0D,
+                            Registries.ITEM.getId(Items.DIAMOND), 100.0D
+                    )),
                     new PreferenceSet(Map.of())
             ),
             new SoundProfile(

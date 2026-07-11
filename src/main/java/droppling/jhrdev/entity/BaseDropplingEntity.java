@@ -1,5 +1,6 @@
 package droppling.jhrdev.entity;
 
+import droppling.jhrdev.inventory.DropplingInventory;
 import droppling.jhrdev.species.SoundProfile;
 import droppling.jhrdev.species.SpeciesData;
 import net.minecraft.entity.EntityType;
@@ -16,8 +17,10 @@ import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInst
 public abstract class BaseDropplingEntity extends PathAwareEntity implements GeoEntity {
 
     private static final int STEP_SOUND_INTERVAL_TICKS = 19;
+    private static final int DEFAULT_INVENTORY_CAPACITY = 5;
 
     protected final SpeciesData speciesData;
+    private final DropplingInventory inventory = new DropplingInventory(DEFAULT_INVENTORY_CAPACITY);
     private final AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
     private int stepSoundCooldown = STEP_SOUND_INTERVAL_TICKS;
 
@@ -39,6 +42,10 @@ public abstract class BaseDropplingEntity extends PathAwareEntity implements Geo
 
     public SpeciesData getSpeciesData() {
         return this.speciesData;
+    }
+
+    public DropplingInventory getInventory() {
+        return this.inventory;
     }
 
     @Override

@@ -3,8 +3,8 @@ package droppling.jhrdev.behavior;
 import java.util.List;
 
 import droppling.jhrdev.entity.BaseDropplingEntity;
-import droppling.jhrdev.sensor.DropplingItemEvaluator;
 import droppling.jhrdev.sensor.DropplingSensor;
+import droppling.jhrdev.evaluator.ItemEvaluator;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.goal.Goal;
 
@@ -12,10 +12,10 @@ public class CollectItemGoal extends Goal {
 
     private static final int SCAN_INTERVAL_TICKS = 20;
     private static final double MOVE_SPEED = 1.0D;
+    private static final double PICKUP_DISTANCE = 1.75D; // blocks
 
     private final BaseDropplingEntity droppling;
     private DropplingSensor sensor;
-    private DropplingItemEvaluator evaluator;
 
     private ItemEntity targetItem;
     private int scanCooldown;
@@ -23,7 +23,7 @@ public class CollectItemGoal extends Goal {
     public CollectItemGoal(BaseDropplingEntity droppling) {
         this.droppling = droppling;
         this.sensor = null; // lazy-resolved to avoid init ordering NPE
-        this.evaluator = null; // lazy-resolved to avoid init ordering NPE
+        // evaluator removed; selection delegated to ItemEvaluator
     }
 
     @Override
@@ -50,6 +50,23 @@ public class CollectItemGoal extends Goal {
             }
         }
 
+        // If we're within pickup range, delegate collection to the entity
+        double pickupRangeSq = PICKUP_DISTANCE * PICKUP_DISTANCE;
+        if (this.droppling.squaredDistanceTo(this.targetItem) <= pickupRangeSq) {
+            boolean collected = this.droppling.collectItem(this.targetItem);
+            if (collected) {
+                // item removed or partially collected; clear target and stop navigation
+                this.targetItem = null;
+                this.droppling.getNavigation().stop();
+                return;
+            }
+
+            // The target is not collectible or already duplicated; abandon it so a new target can be selected.
+            this.targetItem = null;
+            this.droppling.getNavigation().stop();
+            return;
+        }
+
         if (this.droppling.getNavigation().isIdle()) {
             this.droppling.getNavigation().startMovingTo(this.targetItem, MOVE_SPEED);
         }
@@ -57,11 +74,7 @@ public class CollectItemGoal extends Goal {
 
     @Override
     public boolean shouldContinue() {
-        if (this.targetItem == null || this.targetItem.isRemoved() || !this.targetItem.isAlive()) {
-            return false;
-        }
-
-        return this.droppling.squaredDistanceTo(this.targetItem) > 1.0D;
+        return this.targetItem != null && !this.targetItem.isRemoved() && this.targetItem.isAlive();
     }
 
     @Override
@@ -78,19 +91,18 @@ public class CollectItemGoal extends Goal {
         }
 
         this.scanCooldown = SCAN_INTERVAL_TICKS;
-
         DropplingSensor sensor = this.sensor == null ? this.droppling.getSensor() : this.sensor;
-        DropplingItemEvaluator evaluator = this.evaluator == null ? this.droppling.getItemEvaluator() : this.evaluator;
 
-        if (sensor == null || evaluator == null) {
+        if (sensor == null) {
             return null;
         }
 
         // cache resolved instances for future ticks
         this.sensor = sensor;
-        this.evaluator = evaluator;
 
         List<ItemEntity> detectedItems = sensor.scan(this.droppling);
-        return evaluator.evaluate(detectedItems);
+
+        // Use new ItemEvaluator which combines base registry values and species preferences
+        return ItemEvaluator.evaluate(detectedItems, this.droppling);
     }
 }

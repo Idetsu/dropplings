@@ -19,18 +19,32 @@ public final class DropplingInventory {
             return false;
         }
 
-        this.items.add(itemStack.copy());
+        ItemStack copy = itemStack.copy();
+        copy.setCount(1);
+
+        if (this.containsEquivalent(copy)) {
+            return false;
+        }
+
+        this.items.add(copy);
         return true;
     }
 
-    public boolean removeItem(ItemStack itemStack) {
+    public ItemStack removeItem(int slotIndex) {
+        if (slotIndex < 0 || slotIndex >= this.items.size()) {
+            return ItemStack.EMPTY;
+        }
+
+        return this.items.remove(slotIndex);
+    }
+
+    public boolean containsEquivalent(ItemStack itemStack) {
         if (itemStack == null || itemStack.isEmpty()) {
             return false;
         }
 
-        for (int index = 0; index < this.items.size(); index++) {
-            if (this.items.get(index).equals(itemStack)) {
-                this.items.remove(index);
+        for (ItemStack existing : this.items) {
+            if (ItemStack.areEqual(existing, itemStack)) {
                 return true;
             }
         }

@@ -12,6 +12,8 @@ import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -84,8 +86,26 @@ public class DropplingEntity extends BaseDropplingEntity {
 
         super.dropLoot(source, causedByPlayer);
 
-        this.dropStack(
-                new ItemStack(ModItems.DROPPLING_ESSENCE)
-        );
+        // Drop all stored inventory items (100% chance)
+        for (var stack : this.getInventory().getItems()) {
+            if (stack != null && !stack.isEmpty()) {
+                this.dropStack(stack);
+            }
+        }
+
+        // Natural loot: 50% chance to drop Droppling essence.
+        // Quantity: 1-3 normally; Looting can increase up to 4 total.
+        int looting = 0;
+        if (source.getAttacker() instanceof PlayerEntity player) {
+            looting = EnchantmentHelper.getLevel(Enchantments.LOOTING, player.getMainHandStack());
+        }
+
+        int max = Math.min(3 + looting, 4);
+        if (this.random.nextFloat() < 0.5F) {
+            int count = this.random.nextInt(max) + 1;
+            for (int i = 0; i < count; i++) {
+                this.dropStack(new ItemStack(ModItems.DROPPLING_ESSENCE));
+            }
+        }
     }
 }

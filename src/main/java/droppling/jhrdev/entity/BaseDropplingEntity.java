@@ -1,16 +1,21 @@
 package droppling.jhrdev.entity;
 
 import droppling.jhrdev.inventory.DropplingInventory;
-import droppling.jhrdev.sensor.DropplingItemEvaluator;
+import droppling.jhrdev.evaluator.ItemPriorityRegistry;
+// DropplingItemEvaluator removed; use ItemEvaluator+ItemPriorityRegistry instead
 import droppling.jhrdev.sensor.DropplingSensor;
 import droppling.jhrdev.species.SoundProfile;
 import droppling.jhrdev.species.SpeciesData;
+import net.minecraft.util.Identifier;
+import net.minecraft.registry.Registries;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.PathAwareEntity;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -24,14 +29,12 @@ public abstract class BaseDropplingEntity extends PathAwareEntity implements Geo
     protected final SpeciesData speciesData;
     private final DropplingInventory inventory = new DropplingInventory(DEFAULT_INVENTORY_CAPACITY);
     private final DropplingSensor sensor = new DropplingSensor();
-    private final DropplingItemEvaluator itemEvaluator;
     private final AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
     private int stepSoundCooldown = STEP_SOUND_INTERVAL_TICKS;
 
     protected BaseDropplingEntity(EntityType<? extends PathAwareEntity> entityType, World world, SpeciesData speciesData) {
         super(entityType, world);
         this.speciesData = speciesData;
-        this.itemEvaluator = new DropplingItemEvaluator(speciesData.preferences());
         this.setPathfindingPenalty(PathNodeType.WATER, -1.0F);
     }
 
@@ -57,8 +60,87 @@ public abstract class BaseDropplingEntity extends PathAwareEntity implements Geo
         return this.sensor;
     }
 
-    public DropplingItemEvaluator getItemEvaluator() {
-        return this.itemEvaluator;
+    /**
+     * Attempt to collect an ItemEntity into this entity's inventory.
+     * Returns true if the item was successfully stored and removed from the world.
+     */
+    public boolean collectItem(ItemEntity itemEntity) {
+        if (itemEntity == null || itemEntity.isRemoved() || !itemEntity.isAlive()) {
+            return false;
+        }
+
+        if (this.getWorld().isClient) {
+            return false;
+        }
+
+        ItemStack worldStack = itemEntity.getStack();
+        if (worldStack.isEmpty()) {
+            return false;
+        }
+
+        ItemStack transferStack = worldStack.copy();
+        transferStack.setCount(1);
+
+        if (!this.inventory.isFull()) {
+            if (!this.inventory.addItem(transferStack)) {
+                return false;
+            }
+
+            worldStack.decrement(1);
+            if (worldStack.isEmpty()) {
+                itemEntity.discard();
+            }
+
+            return true;
+        }
+
+        var prefs = this.speciesData.preferences();
+        Identifier incomingId = Registries.ITEM.getId(transferStack.getItem());
+        int incomingBase = ItemPriorityRegistry.getBaseValue(incomingId);
+        double incomingPref = prefs.getPreference(transferStack.getItem());
+        double incomingModifier = incomingPref - prefs.defaultValue();
+        int incomingScore = Math.max(1, Math.min(100, (int)Math.round(incomingBase + incomingModifier)));
+
+        int lowestScore = Integer.MAX_VALUE;
+        int lowestIndex = -1;
+        for (int index = 0; index < this.inventory.getItems().size(); index++) {
+            ItemStack s = this.inventory.getItems().get(index);
+            if (s == null || s.isEmpty()) {
+                continue;
+            }
+
+            Identifier id = Registries.ITEM.getId(s.getItem());
+            int base = ItemPriorityRegistry.getBaseValue(id);
+            double pref = prefs.getPreference(s.getItem());
+            double mod = pref - prefs.defaultValue();
+            int currentScore = Math.max(1, Math.min(100, (int)Math.round(base + mod)));
+
+            if (currentScore < lowestScore) {
+                lowestScore = currentScore;
+                lowestIndex = index;
+            }
+        }
+
+        if (lowestIndex >= 0 && incomingScore > lowestScore) {
+            ItemStack replaced = this.inventory.removeItem(lowestIndex);
+            if (!replaced.isEmpty()) {
+                this.dropStack(replaced);
+                if (!this.inventory.addItem(transferStack)) {
+                    // rollback if add failed unexpectedly
+                    this.inventory.addItem(replaced);
+                    return false;
+                }
+
+                worldStack.decrement(1);
+                if (worldStack.isEmpty()) {
+                    itemEntity.discard();
+                }
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

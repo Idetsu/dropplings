@@ -16,6 +16,8 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -25,6 +27,7 @@ public abstract class BaseDropplingEntity extends PathAwareEntity implements Geo
 
     private static final int STEP_SOUND_INTERVAL_TICKS = 19;
     private static final int DEFAULT_INVENTORY_CAPACITY = 5;
+    private static final String NBT_INVENTORY_KEY = "DropplingInventory";
 
     protected final SpeciesData speciesData;
     private final DropplingInventory inventory = new DropplingInventory(DEFAULT_INVENTORY_CAPACITY);
@@ -141,6 +144,24 @@ public abstract class BaseDropplingEntity extends PathAwareEntity implements Geo
         }
 
         return false;
+    }
+
+    @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        super.writeCustomDataToNbt(nbt);
+
+        NbtCompound inventoryNbt = new NbtCompound();
+        this.inventory.writeNbt(inventoryNbt);
+        nbt.put(NBT_INVENTORY_KEY, inventoryNbt);
+    }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        super.readCustomDataFromNbt(nbt);
+
+        if (nbt.contains(NBT_INVENTORY_KEY, NbtElement.COMPOUND_TYPE)) {
+            this.inventory.readNbt(nbt.getCompound(NBT_INVENTORY_KEY));
+        }
     }
 
     @Override

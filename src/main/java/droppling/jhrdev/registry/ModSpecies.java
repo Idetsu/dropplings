@@ -69,9 +69,9 @@ public final class ModSpecies {
             new RenderProfile(
                     Dropplings.id("textures/entity/poring.png"),
                     Map.of(
-                            "face", BoneRenderSettings.of("face", RenderMode.CUTOUT, 1.0F),
-                            "body", BoneRenderSettings.of("body", RenderMode.TRANSLUCENT, 0.65F),
-                            "essence", BoneRenderSettings.of("essence", RenderMode.CUTOUT, 1.0F)
+                            "face", BoneRenderSettings.of(RenderMode.CUTOUT, 1.0F),
+                            "body", BoneRenderSettings.of(RenderMode.TRANSLUCENT, 0.65F),
+                            "essence", BoneRenderSettings.of(RenderMode.TRANSLUCENT, 1.0F)
                     )
             )
     );

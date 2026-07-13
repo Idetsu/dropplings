@@ -3,6 +3,9 @@ package droppling.jhrdev.entity;
 import droppling.jhrdev.behavior.CollectItemGoal;
 import droppling.jhrdev.registry.ModItems;
 import droppling.jhrdev.registry.ModSpecies;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.LookAroundGoal;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
@@ -12,8 +15,6 @@ import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -23,6 +24,10 @@ import software.bernie.geckolib.core.object.PlayState;
 
 
 public class DropplingEntity extends BaseDropplingEntity {
+
+    private int attackAnimationTicks;
+    private boolean attackAnimationStarted;
+    private boolean deathAnimationStarted;
 
     public DropplingEntity(EntityType<? extends PathAwareEntity> entityType, World world) {
         super(entityType, world, ModSpecies.DROPPLING);
@@ -62,6 +67,31 @@ public class DropplingEntity extends BaseDropplingEntity {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+
+        if (this.attackAnimationTicks > 0) {
+            this.attackAnimationTicks--;
+        } else if (this.attackAnimationStarted) {
+            this.attackAnimationStarted = false;
+        }
+
+        if (this.deathTime > 0 && !this.deathAnimationStarted) {
+            this.deathAnimationStarted = true;
+        }
+    }
+
+    @Override
+    public boolean tryAttack(Entity target) {
+        boolean hit = super.tryAttack(target);
+        if (hit) {
+            this.attackAnimationTicks = 10;
+            this.attackAnimationStarted = true;
+        }
+        return hit;
+    }
+
+    @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 
         AnimationController<DropplingEntity> controller = new AnimationController<>(
@@ -69,6 +99,16 @@ public class DropplingEntity extends BaseDropplingEntity {
                 "controller",
                 0,
                 state -> {
+                    if (this.deathAnimationStarted) {
+                        state.setAndContinue(RawAnimation.begin().thenPlay("death"));
+                        return PlayState.CONTINUE;
+                    }
+
+                    if (this.attackAnimationStarted && this.attackAnimationTicks > 0) {
+                        state.setAndContinue(RawAnimation.begin().thenPlay("attack"));
+                        return PlayState.CONTINUE;
+                    }
+
                     state.setAndContinue(
                             RawAnimation.begin().thenLoop(state.isMoving() ? "walk" : "idle")
                     );

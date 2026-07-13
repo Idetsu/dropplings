@@ -14,6 +14,9 @@ import droppling.jhrdev.species.SpeciesData;
 import droppling.jhrdev.species.SpeciesIdentity;
 import droppling.jhrdev.species.SpeciesPreferences;
 import droppling.jhrdev.species.SpawnSettings;
+import droppling.jhrdev.species.BoneRenderSettings;
+import droppling.jhrdev.species.RenderMode;
+import droppling.jhrdev.species.RenderProfile;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 
@@ -62,6 +65,14 @@ public final class ModSpecies {
                     Optional.empty(),
                     Optional.empty(),
                     ModSounds.DROPPLING_PLOP
+            ),
+            new RenderProfile(
+                    Dropplings.id("textures/entity/poring.png"),
+                    Map.of(
+                            "face", BoneRenderSettings.of("face", RenderMode.CUTOUT, 1.0F),
+                            "body", BoneRenderSettings.of("body", RenderMode.TRANSLUCENT, 0.65F),
+                            "essence", BoneRenderSettings.of("essence", RenderMode.CUTOUT, 1.0F)
+                    )
             )
     );
 

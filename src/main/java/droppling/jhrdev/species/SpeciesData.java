@@ -7,6 +7,7 @@ public record SpeciesData(
         SpawnSettings spawnSettings,
         LootSettings lootSettings,
         SpeciesPreferences preferences,
-        SoundProfile soundProfile
+        SoundProfile soundProfile,
+        RenderProfile renderProfile
 ) {
 }

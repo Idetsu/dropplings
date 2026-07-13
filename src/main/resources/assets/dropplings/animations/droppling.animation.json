@@ -86,7 +86,6 @@
 			}
 		},
 		"attack": {
-			"loop": true,
 			"animation_length": 2.2083,
 			"bones": {
 				"face": {

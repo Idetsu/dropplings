@@ -14,7 +14,7 @@ public class DropplingModel extends GeoModel<DropplingEntity> {
 
     @Override
     public Identifier getTextureResource(DropplingEntity animatable) {
-        return Dropplings.id("textures/entity/poring.png");
+        return animatable.getSpeciesData().renderProfile().defaultTexture();
     }
 
     @Override

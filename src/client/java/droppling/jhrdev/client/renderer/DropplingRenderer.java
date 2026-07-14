@@ -1,6 +1,7 @@
 package droppling.jhrdev.client.renderer;
 
 import droppling.jhrdev.client.model.DropplingModel;
+import droppling.jhrdev.client.renderer.layer.InventoryRenderLayer;
 import droppling.jhrdev.entity.DropplingEntity;
 import droppling.jhrdev.species.BoneRenderSettings;
 import droppling.jhrdev.species.RenderMode;
@@ -22,6 +23,7 @@ public class DropplingRenderer extends DynamicGeoEntityRenderer<DropplingEntity>
     public DropplingRenderer(EntityRendererFactory.Context context) {
         super(context, new DropplingModel());
         this.shadowRadius = 0.35F;
+        this.addRenderLayer(new InventoryRenderLayer(this, context));
     }
 
     @Override
@@ -57,6 +59,7 @@ public class DropplingRenderer extends DynamicGeoEntityRenderer<DropplingEntity>
             int targetLight = applyEmissiveStrength(packedLight, settings.emissiveStrength());
 
             super.renderCubesOfBone(poseStack, bone, buffer, targetLight, packedOverlay, red, green, blue, targetAlpha);
+
             return true;
         }
         return false;

@@ -40,7 +40,7 @@ public class DropplingEntity extends BaseDropplingEntity {
         // ===== COMBATE =====
 
         // Ataca cuerpo a cuerpo cuando tiene objetivo.
-        this.goalSelector.add(1, new MeleeAttackGoal(this, 1.0D, false));
+        this.goalSelector.add(1, new MeleeAttackGoal(this, 0.5D, false));
 
 
         // ===== EXPLORACIÓN =====
@@ -109,9 +109,19 @@ public class DropplingEntity extends BaseDropplingEntity {
                         return PlayState.CONTINUE;
                     }
 
-                    state.setAndContinue(
-                            RawAnimation.begin().thenLoop(state.isMoving() ? "walk" : "idle")
-                    );
+                    var jumpSettings = this.getSpeciesData().movementProfile().slimeJump();
+
+                    if (jumpSettings.enabled()) {
+                        if (state.isMoving()) {
+                            state.setAndContinue(RawAnimation.begin().thenLoop("walk"));
+                        } else {
+                            state.setAndContinue(RawAnimation.begin().thenLoop("idle_static"));
+                        }
+                    } else {
+                        state.setAndContinue(
+                                RawAnimation.begin().thenLoop(state.isMoving() ? "walk" : "idle")
+                        );
+                    }
 
                     return PlayState.CONTINUE;
                 }

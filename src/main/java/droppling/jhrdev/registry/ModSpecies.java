@@ -6,7 +6,10 @@ import java.util.Set;
 
 import droppling.jhrdev.Dropplings;
 import droppling.jhrdev.species.EggColors;
+import droppling.jhrdev.species.ItemRenderConfig;
+import droppling.jhrdev.species.ItemRenderPosition;
 import droppling.jhrdev.species.LootSettings;
+import droppling.jhrdev.species.MovementProfile;
 import droppling.jhrdev.species.PreferenceSet;
 import droppling.jhrdev.species.SoundProfile;
 import droppling.jhrdev.species.SpeciesAttributes;
@@ -37,6 +40,7 @@ public final class ModSpecies {
                     2.0D,
                     16.0D
             ),
+            MovementProfile.standard(),
             new SpawnSettings(
                     Set.of(),
                     0,
@@ -73,8 +77,20 @@ public final class ModSpecies {
                             "body", BoneRenderSettings.of(RenderMode.TRANSLUCENT, 0.65F),
                             "essence", BoneRenderSettings.of(RenderMode.TRANSLUCENT, 1.0F)
                     )
-            )
+            ),
+            createDefaultItemRenderConfig()
     );
+
+    private static ItemRenderConfig createDefaultItemRenderConfig() {
+        ItemRenderPosition[] positions = new ItemRenderPosition[5];
+        positions[0] = ItemRenderPosition.of(0.0F, 0.3F, 0.0F, 0.0F, 0.0F, 0.0F, 0.4F, 0.5F);
+        positions[1] = ItemRenderPosition.of(0.15F, 0.25F, 0.1F, 0.0F, 0.0F, 0.0F, 0.35F, 0.6F);
+        positions[2] = ItemRenderPosition.of(-0.15F, 0.35F, 0.05F, 0.0F, 0.0F, 0.0F, 0.38F, 0.4F);
+        positions[3] = ItemRenderPosition.of(0.1F, 0.4F, -0.1F, 0.0F, 0.0F, 0.0F, 0.32F, 0.7F);
+        positions[4] = ItemRenderPosition.of(-0.1F, 0.2F, -0.05F, 0.0F, 0.0F, 0.0F, 0.36F, 0.55F);
+
+        return ItemRenderConfig.of(positions);
+    }
 
     private ModSpecies() {
     }

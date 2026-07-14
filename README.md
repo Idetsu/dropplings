@@ -46,7 +46,6 @@ Current design:
 - 📦 5 storage slots.
 - 👁️ Items are visible inside the creature.
 - 💎 Different Dropplings may spawn carrying different items.
-- ✨ Stored items can affect their appearance.
 
 ---
 
@@ -69,7 +68,7 @@ Current design:
 - 🔥 Fire Droppling
 - 🌈 Rainbow Droppling
 - 😈 Evil Droppling
-- 🍰 Pastel Droppling
+- 🍰 Cake Droppling
 - 🍪 Cookie Droppling
 
 ---
@@ -130,10 +129,11 @@ Completed:
 ✅ Animations  
 ✅ Loot system  
 ✅ Custom sounds
+✅ Item storage system
 
 Planned:
 
-⬜ Item storage system  
+  
 ⬜ Item absorption mechanics  
 ⬜ More Droppling variants  
 ⬜ Natural spawning system  
@@ -148,7 +148,8 @@ Planned:
 Possible future additions:
 
 🎄 Christmas Droppling  
-🎅 Santa Droppling  
+🎅 Santa Droppling
+🎃 Halloween Droppling
 👑 Advanced Droppling bosses  
 ✨ More elemental variants  
 🌎 More interactions with the Minecraft world
@@ -162,6 +163,11 @@ Possible future additions:
 Created by:
 
 **Idetsu**
+
+Face design by:
+
+**Idetsu**
+**Catcatcata**
 
 ---
 
